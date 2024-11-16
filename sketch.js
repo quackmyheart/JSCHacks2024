@@ -9,7 +9,7 @@ class Sat {
   
   display(){
     fill(color(255, 0, 255));
-    square(30, 20, 55, 20)
+    square(30, height / 2 - 30, 55, 20)
   }
 }
 satellite = new Sat(); 
@@ -27,6 +27,14 @@ class Debris {
     // this.position = 
   }
   
+  getX() {
+    return this.x; 
+  }
+  
+  getY() {
+    return this.y; 
+  }
+  
   getMaterial(){
     return this.material; 
   }
@@ -38,6 +46,7 @@ class Debris {
   }
 } 
 
+/*
 function mousePressed() {
   // Add new planet on click
   debris_on_screen.push(new Debris(mouseX, mouseY));
@@ -47,6 +56,7 @@ function mousePressed() {
     console.log(debris.getMaterial());
   }
 }
+*/ 
 
 
 function draw() {
@@ -69,9 +79,11 @@ function makeRandomNumberOfDebris() {
   // randomly generate some debris of different sizes 
   let max = 10; 
   let min = 3; 
-  let number_of_debris = Math.floor(Math.random() * (max - min + 1)) + min; 
+  //let number_of_debris = Math.floor(Math.random() * (max - min + 1)) + min; 
+  // testing with constant number for now 
+  let number_of_debris = 4; 
   for (i = 0; i < number_of_debris; i++){
-    debris_on_screen.push(new Debris(random(width - 100) + 50, random(height - 100) + 50));
+    debris_on_screen.push(new Debris(random(width - 300) + 150, random(height - 100) + 50));
   }
 }
 
@@ -82,4 +94,27 @@ function setup() {
   makeRandomNumberOfDebris(); 
   
   let button = createButton('use sensor in satellite');
+  button.mousePressed(useSensor);
+}
+
+// generates an image with the sensor 
+function useSensor() {
+  
+  // organize Debris objects with respect to height 
+  // make a sorted array of heights + dictionary 
+  let debris_height = []; 
+  let height_Debris_valuepair = new Map();
+  for (let debris of debris_on_screen){
+    let num_height = Math.floor(debris.getY()); 
+    debris_height.push(num_height); 
+    height_Debris_valuepair.set(num_height, debris); 
+  }
+  debris_height.sort((a, b) => a - b);
+  
+  console.log(debris_height); 
+  for (const [key, value] of  height_Debris_valuepair) {
+    console.log(`${key} goes ${value}`);
+  }
+  
+  
 }
