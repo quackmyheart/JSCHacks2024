@@ -26,6 +26,7 @@ class Debris {
     this.x = x; 
     this.y = y; 
     this.material = debris_type[Math.floor(Math.random() * debris_type.length)]; 
+    this.color_for_now = ;
     // this.size = 
     // this.position = 
   }
