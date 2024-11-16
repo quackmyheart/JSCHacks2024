@@ -2,11 +2,6 @@ let debris_on_screen = [];
 let debris_type = ["metal", "plastic", "glass", "coolant"]; 
 let debris_colour = [[128, 128, 128], [255, 192, 203], [0, 0, 255], [255, 255, 255]]; 
 
-function setup() {
-  createCanvas(800, 600);
-}
-
-
 class Sat {
   constructor() {
     this.num = 0; 
@@ -18,27 +13,6 @@ class Sat {
   }
 }
 satellite = new Sat(); 
-
-
-
-function draw() {
-  background(0);
-  
-  // Draw stars
-  for (let i = 0; i < 100; i++) {
-    stroke(255);
-    point(random(width), random(height));
-  }
-  
-  for (let debris of debris_on_screen) {
-    debris.display();
-  }
-  
-  satellite.display(); 
-  
-}
-
-
 
 class Debris {
   constructor(x, y) {
@@ -72,4 +46,40 @@ function mousePressed() {
   for (let debris of debris_on_screen) {
     console.log(debris.getMaterial());
   }
+}
+
+
+function draw() {
+  background(0);
+  
+  // Draw stars
+  for (let i = 0; i < 100; i++) {
+    stroke(255);
+    point(random(width), random(height));
+  }
+  
+  for (let debris of debris_on_screen) {
+    debris.display();
+  }
+  
+  satellite.display(); 
+}
+
+function makeRandomNumberOfDebris() {
+  // randomly generate some debris of different sizes 
+  let max = 10; 
+  let min = 3; 
+  let number_of_debris = Math.floor(Math.random() * (max - min + 1)) + min; 
+  for (i = 0; i < number_of_debris; i++){
+    debris_on_screen.push(new Debris(random(width - 100) + 50, random(height - 100) + 50));
+  }
+}
+
+function setup() {
+  createCanvas(800, 600);
+  
+  // create initial debris 
+  makeRandomNumberOfDebris(); 
+  
+  let button = createButton('use sensor in satellite');
 }
