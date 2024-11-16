@@ -48,6 +48,7 @@ class Debris {
     this.y = y; 
     this.material = debris_type[this.num]; 
     this.color_for_now = debris_colour[this.num];
+    this.size = random(10, 50); 
     // this.size = 
     // this.position = 
   }
@@ -59,7 +60,7 @@ class Debris {
   display() {
     fill(color(this.color_for_now[0], this.color_for_now[1], this.color_for_now[2]));
     noStroke();
-    ellipse(this.x, this.y, 20);
+    ellipse(this.x, this.y, this.size);
   }
 } 
 
