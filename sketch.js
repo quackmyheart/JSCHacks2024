@@ -2,6 +2,9 @@ let debris_on_screen = [];
 let debris_type = ["metal", "plastic", "glass", "coolant"]; 
 let debris_colour = [[128, 128, 128], [255, 192, 203], [0, 0, 255], [255, 255, 255]]; 
 
+let debris_height = []; 
+let height_Debris_valuepair = new Map();
+
 class Sat {
   constructor() {
     this.num = 0; 
@@ -12,7 +15,6 @@ class Sat {
     square(30, height / 2 - 30, 55, 20)
   }
 }
-satellite = new Sat(); 
 
 class Debris {
   constructor(x, y) {
@@ -95,19 +97,28 @@ function setup() {
   
   let button = createButton('use sensor in satellite');
   button.mousePressed(useSensor);
+  
+  satellite = new Sat(); 
 }
+
+function sketch1(p) {
+  p.setup = function () {
+    p.createCanvas(500, 200);
+    p.background(1);
+  }; 
+}
+
 
 // generates an image with the sensor 
 function useSensor() {
   
   // organize Debris objects with respect to height 
   // make a sorted array of heights + dictionary 
-  let debris_height = []; 
-  let height_Debris_valuepair = new Map();
   for (let debris of debris_on_screen){
+    let num_width = Math.floor(debris.getX()); 
     let num_height = Math.floor(debris.getY()); 
     debris_height.push(num_height); 
-    height_Debris_valuepair.set(num_height, debris); 
+    height_Debris_valuepair.set(num_height, [debris, num_width]); 
   }
   debris_height.sort((a, b) => a - b);
   
@@ -116,5 +127,8 @@ function useSensor() {
     console.log(`${key} goes ${value}`);
   }
   
-  
+  // Run first p5 instance
+  space_image = new p5(sketch1);
 }
+
+
