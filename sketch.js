@@ -70,11 +70,6 @@ class DrawPlanet {
 function mousePressed() {
   // Add new planet on click
   debris_on_screen.push(new Debris(mouseX, mouseY));
-  console.log(debris_on_screen);
-  // display materials 
-  for (let debris of debris_on_screen) {
-    console.log(debris.getMaterial());
-  }
 }
 */ 
 
@@ -133,7 +128,6 @@ function sketch1(p) {
     let info = [Math.floor(scaled_size), Math.floor(random(200 - 50) + 25), num, debris_colour[debris_curr.getMaterialNum()]]; 
     planet_draw.push(info); 
   }
-  console.log(planet_draw); 
   
   
   p.setup = function () {
@@ -150,8 +144,47 @@ function sketch1(p) {
   }
   
   p.button2 = createButton('which debris should it follow?');
-  p.button2.mousePressed(square_closest);
+  p.button2.mousePressed(squareClosest(planet_draw));
+}
+
+function squareClosest(planet_draw) {
+  let distances = []; 
+  for (let thing of debris_on_screen) {
+    let x_cor = thing.getX(); 
+    let y_cor = thing.getY(); 
+    let between = distanceBetweenPoints(0, 300, x_cor, y_cor); 
+    console.log(between);
+    distances.push(between);
+    
+  }
+  console.log(distances); 
+  let min_distance = distances[0]; 
+  for (let num of distances){
+    if (num < min_distance){
+      min_distance = num; 
+    }
+  }
+  console.log(min_distance); 
   
+  dex = distances.indexOf(min_distance); //index of closest debris 
+  console.log(dex);
+  
+  // red circle 
+  let thing = planet_draw[dex]; 
+  p.fill(255, 0, 0); 
+  p.circle(thing[2], thing[1], thing[0] + 10);  
+  
+  // on top 
+  p.fill(thing[3][0], thing[3][1], thing[3][2]); 
+  p.circle(thing[2], thing[1], thing[0]);  
+  
+  
+}
+
+function distanceBetweenPoints(x1, y1, x2, y2) {
+  // assumes 
+  let y = Math.floor(Math.sqrt((Math.pow(x1 - x2, 2)) + (Math.pow(y1 - y2, 2))));
+  return y; 
 }
 
 
@@ -167,11 +200,6 @@ function useSensor() {
     height_Debris_valuepair.set(num_height, [debris, num_width]); 
   }
   debris_height.sort((a, b) => a - b);
-  
-  console.log(debris_height); 
-  for (const [key, value] of  height_Debris_valuepair) {
-    console.log(`${key} goes ${value}`);
-  }
   
   // Run first p5 instance
   space_image = new p5(sketch1);
