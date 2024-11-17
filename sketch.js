@@ -116,6 +116,9 @@ function setup() {
   let button = createButton('use sensor in satellite');
   button.mousePressed(useSensor);
   
+  //let button2 = createButton('which debris should it follow?');
+  //button.mousePressed(useSensor);
+  
   satellite = new Sat(); 
 }
 
@@ -141,10 +144,13 @@ function sketch1(p) {
   // draw on the image 
   p.draw = function () {
     for (let thing of planet_draw) {
-      p.circle(thing[2], thing[1], thing[0]); 
       p.fill(thing[3][0], thing[3][1], thing[3][2]); 
+      p.circle(thing[2], thing[1], thing[0]);  
     }
   }
+  
+  p.button2 = createButton('which debris should it follow?');
+  p.button2.mousePressed(square_closest);
   
 }
 
