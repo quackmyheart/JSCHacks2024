@@ -29,6 +29,14 @@ class Debris {
     // this.position = 
   }
   
+  getMaterialNum(){
+    return this.num; 
+  }
+  
+  getSize(){
+    return this.size; 
+  }
+  
   getX() {
     return this.x; 
   }
@@ -47,6 +55,16 @@ class Debris {
     ellipse(this.x, this.y, this.size);
   }
 } 
+
+class DrawPlanet {
+  constructor(x, y, debris_height, debris_size) {
+    this.x = x;
+    this.y = y; 
+    this.debris_height = debris_height;  
+    this.debris_size = debris_size; 
+    this.picture_height = random(200 - 60) + 30; 
+  }
+}
 
 /*
 function mousePressed() {
@@ -102,10 +120,32 @@ function setup() {
 }
 
 function sketch1(p) {
+  // convert debris to 
+  let planet_draw = []; 
+  for (let num of debris_height) {
+    let debris_curr = (height_Debris_valuepair.get(num))[0]; // debris class yay
+    
+    // info = [size of circle, random picture height, mapped height in simulation, type]
+    let scaled_size = debris_curr.getSize() * ((800-debris_curr.getX()) / 800); 
+    let info = [Math.floor(scaled_size), Math.floor(random(200 - 50) + 25), num, debris_colour[debris_curr.getMaterialNum()]]; 
+    planet_draw.push(info); 
+  }
+  console.log(planet_draw); 
+  
+  
   p.setup = function () {
-    p.createCanvas(500, 200);
+    p.createCanvas(600, 200);
     p.background(1);
-  }; 
+  };  
+  
+  // draw on the image 
+  p.draw = function () {
+    for (let thing of planet_draw) {
+      p.circle(thing[2], thing[1], thing[0]); 
+      p.fill(thing[3][0], thing[3][1], thing[3][2]); 
+    }
+  }
+  
 }
 
 
