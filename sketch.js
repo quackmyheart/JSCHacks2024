@@ -1,78 +1,100 @@
 let debris_on_screen = [];
-let debris_type = ["metal", "plastic", "glass", "coolant"]; 
-let debris_colour = [[128, 128, 128], [255, 192, 203], [0, 0, 255], [255, 255, 255]]; 
+let debris_type = ["metal", "plastic", "glass", "coolant"];
+let satelliteImg;
+let debrisImages = [];
 
-let debris_height = []; 
+let debris_height = [];
 let height_Debris_valuepair = new Map();
 
+let satellite;
+let targetDebris = null;
+let moveButton;
+let isMoving = false;
+
+function preload() {
+  satelliteImg = loadImage('sat.png');
+  debrisImages = [
+    loadImage('sat.png'),
+    loadImage('sat.png'),
+    loadImage('sat.png'),
+    loadImage('sat.png')
+  ];
+}
+
 class Sat {
-  constructor() {
-    this.num = 0; 
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.speed = 2;
+    this.size = 55; // Adjust this to match your image size
   }
   
-  display(){
-    fill(color(255, 0, 255));
-    square(30, height / 2 - 30, 55, 20)
+  display() {
+    image(satelliteImg, this.x, this.y, this.size, this.size);
+  }
+
+  moveTowards(target) {
+    if (target) {
+      let angle = atan2(target.y - this.y, target.x - this.x);
+      this.x += cos(angle) * this.speed;
+      this.y += sin(angle) * this.speed;
+    }
   }
 }
 
 class Debris {
   constructor(x, y) {
-    // this.pos = createVector(x, y);
-    this.num = Math.floor(Math.random() * debris_type.length); 
-    this.x = x; 
-    this.y = y; 
-    this.material = debris_type[this.num]; 
-    this.color_for_now = debris_colour[this.num];
-    this.size = random(10, 50); 
-    // this.size = 
-    // this.position = 
+    this.num = Math.floor(Math.random() * debris_type.length);
+    this.x = x;
+    this.y = y;
+    this.material = debris_type[this.num];
+    this.size = random(30, 70); // Adjust size range as needed
   }
   
-  getMaterialNum(){
-    return this.num; 
+  getMaterialNum() {
+    return this.num;
   }
   
-  getSize(){
-    return this.size; 
+  getSize() {
+    return this.size;
   }
   
   getX() {
-    return this.x; 
+    return this.x;
   }
   
   getY() {
-    return this.y; 
+    return this.y;
   }
   
-  getMaterial(){
-    return this.material; 
+  getMaterial() {
+    return this.material;
   }
   
   display() {
-    fill(color(this.color_for_now[0], this.color_for_now[1], this.color_for_now[2]));
-    noStroke();
-    ellipse(this.x, this.y, this.size);
+    image(debrisImages[this.num], this.x, this.y, this.size, this.size);
   }
-} 
 
-class DrawPlanet {
-  constructor(x, y, debris_height, debris_size) {
-    this.x = x;
-    this.y = y; 
-    this.debris_height = debris_height;  
-    this.debris_size = debris_size; 
-    this.picture_height = random(200 - 60) + 30; 
+  isMetal() {
+    return this.material === "metal";
   }
 }
 
-/*
-function mousePressed() {
-  // Add new planet on click
-  debris_on_screen.push(new Debris(mouseX, mouseY));
+function setup() {
+  createCanvas(800, 600, P2D);
+  
+  satellite = new Sat(30, 300);
+  
+  makeRandomNumberOfDebris();
+  
+  let sensorButton = createButton('Use sensor in satellite');
+  sensorButton.position(10, height + 10);
+  sensorButton.mousePressed(useSensor);
+  
+  moveButton = createButton('Move to closest metal debris');
+  moveButton.position(200, height + 10);
+  moveButton.mousePressed(startMoving);
 }
-*/ 
-
 
 function draw() {
   background(0);
@@ -83,126 +105,91 @@ function draw() {
     point(random(width), random(height));
   }
   
+  imageMode(CENTER);
+  
   for (let debris of debris_on_screen) {
     debris.display();
   }
   
-  satellite.display(); 
+  satellite.display();
+  
+  if (isMoving && targetDebris) {
+    satellite.moveTowards(targetDebris);
+  }
 }
 
 function makeRandomNumberOfDebris() {
-  // randomly generate some debris of different sizes 
-  let max = 10; 
-  let min = 3; 
-  //let number_of_debris = Math.floor(Math.random() * (max - min + 1)) + min; 
-  // testing with constant number for now 
-  let number_of_debris = 4; 
-  for (i = 0; i < number_of_debris; i++){
+  let number_of_debris = 4;
+  for (let i = 0; i < number_of_debris; i++) {
     debris_on_screen.push(new Debris(random(width - 300) + 150, random(height - 100) + 50));
   }
 }
 
-function setup() {
-  createCanvas(800, 600);
+function startMoving() {
+  if (!isMoving) {
+    isMoving = true;
+    targetDebris = findClosestMetalDebris();
+    moveButton.html('Stop moving');
+  } else {
+    isMoving = false;
+    targetDebris = null;
+    moveButton.html('Move to closest metal debris');
+  }
+}
+
+function findClosestMetalDebris() {
+  let closestDebris = null;
+  let closestDistance = Infinity;
   
-  // create initial debris 
-  makeRandomNumberOfDebris(); 
+  for (let debris of debris_on_screen) {
+    if (debris.isMetal()) {
+      let distance = dist(satellite.x, satellite.y, debris.x, debris.y);
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestDebris = debris;
+      }
+    }
+  }
   
-  let button = createButton('use sensor in satellite');
-  button.mousePressed(useSensor);
-  
-  //let button2 = createButton('which debris should it follow?');
-  //button.mousePressed(useSensor);
-  
-  satellite = new Sat(); 
+  return closestDebris;
 }
 
 function sketch1(p) {
-  // convert debris to 
-  let planet_draw = []; 
+  let planet_draw = [];
   for (let num of debris_height) {
-    let debris_curr = (height_Debris_valuepair.get(num))[0]; // debris class yay
-    
-    // info = [size of circle, random picture height, mapped height in simulation, type]
-    let scaled_size = debris_curr.getSize() * ((800-debris_curr.getX()) / 800); 
-    let info = [Math.floor(scaled_size), Math.floor(random(200 - 50) + 25), num, debris_colour[debris_curr.getMaterialNum()]]; 
-    planet_draw.push(info); 
+    let debris_curr = (height_Debris_valuepair.get(num))[0];
+    let scaled_size = debris_curr.getSize() * ((800 - debris_curr.getX()) / 800);
+    let info = [Math.floor(scaled_size), Math.floor(random(200 - 50) + 25), num, debris_curr.getMaterialNum()];
+    planet_draw.push(info);
   }
-  
   
   p.setup = function () {
     p.createCanvas(600, 200);
     p.background(1);
   };  
   
-  // draw on the image 
   p.draw = function () {
     for (let thing of planet_draw) {
-      p.fill(thing[3][0], thing[3][1], thing[3][2]); 
-      p.circle(thing[2], thing[1], thing[0]);  
+      p.image(debrisImages[thing[3]], thing[2], thing[1], thing[0], thing[0]);
     }
   }
-  
-  p.button2 = createButton('which debris should it follow?');
-  p.button2.mousePressed(squareClosest(planet_draw));
-}
-
-function squareClosest(planet_draw) {
-  let distances = []; 
-  for (let thing of debris_on_screen) {
-    let x_cor = thing.getX(); 
-    let y_cor = thing.getY(); 
-    let between = distanceBetweenPoints(0, 300, x_cor, y_cor); 
-    console.log(between);
-    distances.push(between);
-    
-  }
-  console.log(distances); 
-  let min_distance = distances[0]; 
-  for (let num of distances){
-    if (num < min_distance){
-      min_distance = num; 
-    }
-  }
-  console.log(min_distance); 
-  
-  dex = distances.indexOf(min_distance); //index of closest debris 
-  console.log(dex);
-  
-  // red circle 
-  let thing = planet_draw[dex]; 
-  p.fill(255, 0, 0); 
-  p.circle(thing[2], thing[1], thing[0] + 10);  
-  
-  // on top 
-  p.fill(thing[3][0], thing[3][1], thing[3][2]); 
-  p.circle(thing[2], thing[1], thing[0]);  
-  
-  
 }
 
 function distanceBetweenPoints(x1, y1, x2, y2) {
-  // assumes 
-  let y = Math.floor(Math.sqrt((Math.pow(x1 - x2, 2)) + (Math.pow(y1 - y2, 2))));
-  return y; 
+  return Math.floor(Math.sqrt((Math.pow(x1 - x2, 2)) + (Math.pow(y1 - y2, 2))));
 }
 
-
-// generates an image with the sensor 
 function useSensor() {
+  debris_height = [];
+  height_Debris_valuepair.clear();
   
-  // organize Debris objects with respect to height 
-  // make a sorted array of heights + dictionary 
-  for (let debris of debris_on_screen){
-    let num_width = Math.floor(debris.getX()); 
-    let num_height = Math.floor(debris.getY()); 
-    debris_height.push(num_height); 
-    height_Debris_valuepair.set(num_height, [debris, num_width]); 
+  for (let debris of debris_on_screen) {
+    let num_height = Math.floor(debris.getY());
+    debris_height.push(num_height);
+    height_Debris_valuepair.set(num_height, [debris, Math.floor(debris.getX())]);
   }
   debris_height.sort((a, b) => a - b);
   
   // Run first p5 instance
-  space_image = new p5(sketch1);
+  new p5(sketch1);
 }
-
-
